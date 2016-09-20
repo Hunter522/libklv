@@ -61,3 +61,6 @@ sftp-config.json
 # other
 *.pyc
 *.txt.user
+
+# visual studio code
+.vscode
