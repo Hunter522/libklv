@@ -6,7 +6,7 @@ option(test "Build all tests." OFF) # makes boolean 'test' available
 set(CMAKE_BUILD_TYPE Debug)
 
 # Project
-project(libklv)
+project(klv)
 
 # Compiler settings
 if (CMAKE_VERSION VERSION_LESS "3.1")
@@ -31,12 +31,12 @@ include_directories(include)
 #set(SOURCES src/mainapp.cpp src/Student.cpp)
 file(GLOB SOURCES "src/*.cpp")
 
-add_library(libklv SHARED ${SOURCES})
+add_library(klv SHARED ${SOURCES})
 
 # LINKING
 # target_link_libraries(libklv z) # zlib
 # target_link_libraries(libklv m) # math
-target_link_libraries(libklv ${LOG4CPP_LIBRARIES})
+target_link_libraries(klv ${LOG4CPP_LIBRARIES})
 
 # TESTING
 # TESTING
@@ -47,5 +47,5 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/deps/googletest")
 file(GLOB TESTS "test/*.cpp")
 
 add_executable(runUnitTests ${TESTS})
-target_link_libraries(runUnitTests gtest gtest_main)
+target_link_libraries(runUnitTests gtest gtest_main klv)
 add_test(NAME libklv-test COMMAND runUnitTests)

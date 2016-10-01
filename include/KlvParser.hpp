@@ -31,7 +31,7 @@ public:
      *
      * @param  byte byte to parse
      * @return       the new kLV parsed from the input bytes. NULL if no KLV was
-     *               parsed or error occured.
+     *               parsed or error occured. Ownership is transfered to the caller.
      */
     KLV* parseByte(uint8_t byte);
 
@@ -50,12 +50,16 @@ private:
         STATE_VALUE       /// read value field
     };
 
-    State          state;   /// parser state
+    State          state;               /// parser state
+    std::vector<uint8_t> key;            /// 16-byte universal key
+    std::vector<uint8_t> len;           /// BER-encoded length
+    std::vector<uint8_t> val;           /// value
 
-    // current parser state fields
-    std::vector<uint8_t> key;   /// 16-byte universal key
-    unsigned long ber_len;  /// length of BER-encoded length field in bytes
-    unsigned long val_len;  /// length of value field in bytesd
+    bool ber_long_form;                 /// true if BER length field is long form, false if short form
+    unsigned long ber_len;              /// length of BER-encoded length field in bytes
+    unsigned long num_ber_len_bytes_read; /// number of bytes read for BER length field
+    unsigned long val_len;              /// length of value field in bytes
+    
 };
 
 

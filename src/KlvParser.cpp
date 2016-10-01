@@ -7,12 +7,15 @@
 //
 
 #include "KlvParser.hpp"
+#include <algorithm>
+#include <stdio.h>
 
 KlvParser::KlvParser() {
     this->state = STATE_INIT;
     this->ber_len = 0;
     this->val_len = 0;
-    this->
+    this->num_ber_len_bytes_read = 0;
+    this->ber_long_form = false;
 }
 
 KlvParser::~KlvParser() {
@@ -28,29 +31,91 @@ KlvParser::~KlvParser() {
  *
  * @param  byte byte to parse
  * @return       the new kLV parsed from the input bytes. NULL if no KLV was
- *               parsed or error occured.
+ *               parsed or error occured. Ownership is transfered to the caller.
  */
 KLV* KlvParser::parseByte(uint8_t byte) {
-
     switch(state) {
-    case STATE_INIT:       /// init state
+    case STATE_INIT: {       // init state
         // keep parsing until last 16 bytes match with KLV universal key
         // keep parsing until first 4 bytes of the 16-byte KLV universal key is detected
         // store last 16 bytes in key
         // keep parsing until first 4 bytes of the 16-byte key match the 4-byte KLV unversal key header
+        key.push_back(byte);
+
+        if(key.size() > 16) {
+            key.erase(key.begin());
+        }
+
+        // TODO: come up with faster optimized method
+        if( (std::search(key.begin(), key.end(), 
+            SMPTE_KLV_UL_HEADER, SMPTE_KLV_UL_HEADER+SMPTE_KLV_UL_HEADER_LEN)) == key.begin() 
+            && key.size() == 16) {
+                // found the 4-byte KLV universal key header at beginning
+                state = STATE_KEY;
+                printf("KlvParser transitioning to STATE_KEY\n");
+        }
         break;
-    case STATE_HEADER:     /// read KLV header
+    }
+    case STATE_KEY: {       // read KLV 16-byte universal key
+        // read byte, and figure out if long or short BER form
+        len.push_back(byte);
+        ber_long_form = (bool) (byte & 0b10000000);
+
+        if(ber_long_form) {
+            state = STATE_LEN_HEADER;
+            ber_len = byte & 0b01111111;
+            val_len = 0;
+            printf("BER-Len field is long-form\n");
+            printf("BER len: %ld\n", ber_len);
+            printf("KlvParser transitioning to STATE_LEN_HEADER\n");
+        } else {
+            state = STATE_LEN;
+            val_len = byte & 0b01111111;
+            printf("BER-Len field is short-form\n");
+            printf("Value length: %ld\n", val_len);
+            printf("KlvParser transitioning to STATE_LEN\n");
+        }
         break;
-    case STATE_LEN_HEADER: /// read first byte in BER-encoded length field
+    }
+    case STATE_LEN_HEADER: { // read first byte in BER-encoded length field
+        // keep parsing for ber_len bytes and store into val_len
+        len.push_back(byte);
+        val_len <<= 8;
+        val_len |= byte;
+        num_ber_len_bytes_read++;
+        if(num_ber_len_bytes_read == ber_len) {
+            state = STATE_LEN;
+            printf("Value length: %ld\n", val_len);
+            printf("KlvParser transitioning to STATE_LEN\n");
+        }
         break;
-    case STATE_LEN:        /// read entire BER-encoded length field
-        break;
-    case STATE_VALUE:      /// read value field
-        break;
+    }
+    case STATE_LEN: {       // read entire BER-encoded length field
+        // keep parsing for val_len bytes and store into val
+        val.push_back(byte);
+        if(val.size() == val_len) {
+            state = STATE_VALUE;
+            printf("KlvParser transitioning to STATE_VALUE\n");
+        } else {
+            break;
+        }
+    }
+    case STATE_VALUE: {      // read value field
+        // construct KLV object
+
+        // for right now this will only construct the "root" part of the incoming KLV
+        // ...and not recurse into the tree if there is embedded KLV
+
+        // TODO: use smart pointer here and transfer ownership to caller
+        KLV *klv = new KLV(key, len, val);
+        state = STATE_INIT;
+        return klv;
+    }
     default:
         // not supposed to be here :)
         break;
     }
+    return NULL;
 }
 
 

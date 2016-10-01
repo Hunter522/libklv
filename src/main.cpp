@@ -3,7 +3,6 @@
 
 int main(int argc, char* argv[])
 {
-    std::str
-
+    std::string foo;
     return 0;
 }

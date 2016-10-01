@@ -21,8 +21,12 @@ protected:
     }
 
     // objects delclared here can be used by all tests in the test case for KlvTest
+};
+
+TEST_F(KlvTest, TestConstruction) {
+    // test that fields are set correctly
 }
 
-TEST_F(KlvTest, TestStuff) {
-    
+TEST_F(KlvTest, TestTree) {
+    // test that the tree is constructed correctly
 }
