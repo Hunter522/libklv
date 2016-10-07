@@ -47,5 +47,5 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/deps/googletest")
 file(GLOB TESTS "test/*.cpp")
 
 add_executable(runUnitTests ${TESTS})
-target_link_libraries(runUnitTests gtest gtest_main klv)
+target_link_libraries(runUnitTests gtest gtest_main gmock klv)
 add_test(NAME libklv-test COMMAND runUnitTests)

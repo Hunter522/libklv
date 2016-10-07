@@ -33,6 +33,10 @@ KLV::KLV(const std::vector<uint8_t> key, const std::vector<uint8_t> len, const s
     this->key = key;
     this->len_encoded = len;
     this->value = val;
+    this->parent = NULL;
+    this->child = NULL;
+    this->next_sibling = NULL;
+    this->previous_sibling = NULL;
 
     // BER encoding has a short form and long form
     // Most significant bit (bit 7) is the short/long form flag

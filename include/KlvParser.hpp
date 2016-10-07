@@ -36,6 +36,7 @@ public:
     KLV* parseByte(uint8_t byte);
 
 protected:
+    bool checkIfContainsKlvKey(std::vector<uint8_t> data);
 
 private:
 
@@ -50,16 +51,20 @@ private:
         STATE_VALUE       /// read value field
     };
 
-    State          state;               /// parser state
-    std::vector<uint8_t> key;            /// 16-byte universal key
-    std::vector<uint8_t> len;           /// BER-encoded length
-    std::vector<uint8_t> val;           /// value
+    State                state;           /// parser state
+    std::vector<uint8_t> key;             /// 16-byte universal key
+    std::vector<uint8_t> len;             /// BER-encoded length
+    std::vector<uint8_t> val;             /// value
 
-    bool ber_long_form;                 /// true if BER length field is long form, false if short form
-    unsigned long ber_len;              /// length of BER-encoded length field in bytes
-    unsigned long num_ber_len_bytes_read; /// number of bytes read for BER length field
-    unsigned long val_len;              /// length of value field in bytes
+    bool                 ber_long_form;   /// true if BER length field is long form, false if short form
+    unsigned long        ber_len;         /// length of BER-encoded length field in bytes
+    unsigned long        num_ber_len_bytes_read; /// number of bytes read for BER length field
+    unsigned long        val_len;         /// length of value field in bytes
     
+    KLV*                 parent;          /// parent KLV node, NULL if on top level branch
+    KLV*                 child;           /// first child in branch, NULL if leave node
+    KLV*                 previous_sibling;/// previous KLV node on branch, NULL if none. Typically if first node in branch, this will be NULL
+    KLV*                 next_sibling;    /// next KLV node on branch, NULL if none
 };
 
 
