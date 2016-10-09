@@ -19,7 +19,31 @@
 class KlvParser {
 
 public:
-    KlvParser();
+
+    /**
+     * Encoding method for keys
+     */
+    enum KeyEncoding {
+        KEY_ENCODING_1_BYTE,
+        KEY_ENCODING_2_BYTE,
+        KEY_ENCODING_4_BYTE,
+        KEY_ENCODING_16_BYTE,
+        KEY_ENCODING_BER_OID
+    };
+
+
+    /**
+     * Constructs a new KLV parser. Since keys can be encoded using different methods, 
+     * a vector of KeyEncodings must be passed to allow the parser to know how to decode
+     * keys correctly. A vector is used to allow different encodings for different levels
+     * of KLV when parsing embedded KLV triplets. For example, the root/base KLV may use a
+     * universal 16-byte key, and the embedded KLVs may use a local data set encoding of
+     * BER-OID. If no KeyEncoding is specified, then it is assumed that 16-byte keys are
+     * used at the root/base key and BER-OID encoding is used for the embedded KLVs.
+     * 
+     * @param key_encodings vector of KeyEncodings to be used when parsing
+     */
+    KlvParser(std::vector<KeyEncoding> key_encodings);
     virtual ~KlvParser();
 
     /**
@@ -33,12 +57,11 @@ public:
      * @return       the new kLV parsed from the input bytes. NULL if no KLV was
      *               parsed or error occured. Ownership is transfered to the caller.
      */
-    KLV* parseByte(uint8_t byte);
+    virtual KLV* parseByte(uint8_t byte);
 
 protected:
     bool checkIfContainsKlvKey(std::vector<uint8_t> data);
-
-private:
+    void resetFields();
 
     /**
      * Parser state enum
@@ -51,7 +74,9 @@ private:
         STATE_VALUE       /// read value field
     };
 
+    long                 ctr;             /// counter for bytes read by this parser
     State                state;           /// parser state
+    std::vector<KeyEncoding> key_encodings; /// encoding to use for keys
     std::vector<uint8_t> key;             /// 16-byte universal key
     std::vector<uint8_t> len;             /// BER-encoded length
     std::vector<uint8_t> val;             /// value

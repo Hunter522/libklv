@@ -110,3 +110,34 @@ std::vector<uint8_t> KLV::toBytes() {
     }
     return buffer;
 }
+
+std::unordered_map<std::vector<uint8_t>, KLV> KLV::indexToMap() {
+    std::unordered_map<std::vector<uint8_t>, KLV> map;
+
+    // iterate through the tree from this KLV and add each KLV node to the map
+    // KLV* node = next_sibling;
+    // while(node != NULL) {
+    //     // map.emplace(node->getKey(), *node);
+    //     map[node->getKey()] = *node;
+
+    //     if(node->getChild() != NULL) {
+    //         // will need a recursive function that takes in a KLV and adds it to map
+    //     }
+
+    //     node = node->getNext();
+    // }
+    addToMap(map);
+
+    return map;
+}
+
+void KLV::addToMap(std::unordered_map<std::vector<uint8_t>, KLV> &map) {
+    map[getKey()] = *this;
+
+    // recursive depth-first add to map
+    KLV* node = child;
+    while(node != NULL) {
+        node->addToMap(map);
+        node = node->getNext();
+    }
+}
