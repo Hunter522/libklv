@@ -86,16 +86,12 @@ into a flattened map. This method returns a `unordered_map` where the key is the
 the KLV itself. The map can then be used to easily access the different child KLV elements by simply using the KLV 
 key/tag.
 
+
 ### Encoding KLV
 
 Once a KLV object is constructed, you can encode the KLV into a byte vector by simply calling `KLV::toBytes()`.
  
 
-##### Configuration
-
-TODO: add usage
-
-
 ## License
 
-TODO: add license information
+This project uses the MIT license. See LICENSE.txt.
