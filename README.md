@@ -19,9 +19,18 @@ from MPEG2-TS video.
 Google Test is used in this project as a Git submodules and is therefor built and linked when this project is built.
 
 
+## Checkout
+
+To checkout/clone this project, run:
+```bash
+git clone https://github.com/Hunter522/libklv.git
+cd libklv
+git submodule update --init --recursive
+```
+
 ## Build
 
-To build, run the following commands:
+To build:
 ```bash
 cd libklv
 mkdir build && cd build
@@ -33,7 +42,7 @@ This will build a `libklv.so` file in the build/ directory.
 
 ## Run tests
 
-To run unit tests, build the project and then run the following commands:
+To run unit tests, build the project and then:
 ```bash
 cd libklv/build
 ./runUnitTests
